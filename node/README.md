@@ -47,6 +47,11 @@ The `cyclonedx` output format is based on the https://github.com/CycloneDX spec.
 node_modules/connect/node_modules/body-parser/node_modules/qs   # ignore specific path
 ```
 
+Entries match complete path segments of the canonical file path: an entry for `vendor` ignores the
+`vendor` directory itself and everything below it, but never a sibling such as `vendor-evil`. Glob
+patterns are supported (`*` matches any characters except `/`, `**` matches across directories), and
+entries starting with `@` are treated as relative paths that match regardless of the scan root.
+
 Due to a bug in ignore resolving, please upgrade to >= 1.1.3
 
 ## .retireignore.json

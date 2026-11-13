@@ -2,12 +2,12 @@ import { EventEmitter as Emitter } from 'events';
 import * as retire from './retire';
 import * as fs from 'fs';
 import * as crypto from 'crypto';
-import * as path from 'path';
 import { ComponentDescriptor, Finding, Hasher, Options, Repository, Vulnerability } from './types';
 import { Component } from './types';
 import { checkOSV } from './depsdev';
 import { deepScan } from './deepscan';
 import { evaluateLicense } from './license';
+import { isIgnored } from './ignore';
 
 type Ignores = Required<Options>['ignore'];
 
@@ -75,9 +75,9 @@ function filterAndEmitResults(finding: Finding, options: Options, repo: Reposito
 
 function shouldIgnorePath(fileSpecs: string[], ignores: Ignores): boolean {
   return (
-    ignores.paths?.some((i) => {
-      return fileSpecs.some((j) => i.test(j) || i.test(path.resolve(j)));
-    }) ?? false
+    ignores.pathsAsString?.some((pattern) => fileSpecs.some((file) => isIgnored(file, [pattern]))) ||
+    ignores.paths?.some((ignore) => fileSpecs.some((file) => isIgnored(file, [ignore]))) ||
+    false
   );
 }
 

@@ -13,6 +13,7 @@ import path from 'path';
 import fs from 'fs';
 import { Finding, Options, severityLevels, severityParser } from './types';
 import { parseIgnoreFile } from './parseIgnoreFile';
+import { ignorePatternToRegExp } from './ignore';
 
 let failProcess = false;
 const defaultIgnoreFiles = ['.retireignore', '.retireignore.json'];
@@ -202,10 +203,7 @@ try {
   if (ignorefile) {
     config.ignore.pathsAsString = parseIgnoreFile(ignorefile, config);
   }
-  config.ignore.paths = config.ignore.pathsAsString
-    .map((p) => p.replace(/[.+?^${}()|[\]\\]/g, '\\$&'))
-    .map((p) => p.replace(/[*]{1,2}/g, (a) => (a.length == 2 ? '.*' : '[^/]*')))
-    .map((s) => new RegExp(s));
+  config.ignore.paths = config.ignore.pathsAsString.map(ignorePatternToRegExp);
 
   scan();
 } catch (error) {
